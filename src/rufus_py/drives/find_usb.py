@@ -2,7 +2,7 @@ import psutil
 import os
 import subprocess
 import getpass
-
+from rufus_py.drives import states
 ### USB RECOGNITION ###
 def find_usb():
     usbdict = {}    # DICTIONARY WHERE USB MOUNT PATH IS KEY AND LABEL IS VALUE
@@ -77,4 +77,5 @@ def find_DN():
         for mount_path in all_directories:
             if part.mountpoint == mount_path:
                 device_node = part.device
+                states.DN = device_node
                 return device_node

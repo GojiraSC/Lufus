@@ -3,6 +3,7 @@ import subprocess
 from rufus_py.writing.check_file_sig import _resolve_device_node
 from rufus_py.writing.check_file_sig import check_iso_signature
 from rufus_py.drives import find_usb as fu
+from rufus_py.drives import states
 
 def pkexecNotFound():
     print("Error: The command pkexec or labeling software was not found on your system.")
@@ -14,10 +15,12 @@ def unexpected():
 def FlashUSB(iso_path, usb_mount_path) -> bool:
     # Resolve the device node from the mount path — dd must target the
     # raw device (e.g. /dev/sdb), not the mounted directory.
-    device_node = fu.find_DN()
-    if not device_node:
-        print(f"Could not resolve device node for mount path: {usb_mount_path}")
-        return False
+    print(states.DN)
+    device_node = states.DN
+    print(device_node)
+    # if not device_node:
+    #     print(f"Could not resolve device node for mount path: {usb_mount_path}")
+    #     return False
 
     # Strip the partition number so dd writes to the whole disk
     raw_device = device_node.rstrip("0123456789")
@@ -25,6 +28,7 @@ def FlashUSB(iso_path, usb_mount_path) -> bool:
     # if not _is_removable_device(raw_device):
     #     print(f"Aborting: {raw_device} is not a removable device.")
     #     return False
+
     try:
         dd_args = ["sudo", "dd", f"if={iso_path}", f"of={raw_device}", "bs=4M", "status=progress", "conv=fdatasync"]
         print(f"Flashing USB with command: {' '.join(dd_args)}")

@@ -10,3 +10,4 @@ create_extended = 0
 check_bad = 0
 new_label = "Volume Label"
 iso_path: str = ""
+DN = ""
