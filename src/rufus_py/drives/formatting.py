@@ -1,8 +1,33 @@
+import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
 from rufus_py.drives import states
 from rufus_py.drives import find_usb as fu
+
+
+def _get_raw_device(drive: str) -> str:
+    """Return the raw disk device for a partition node.
+
+    Handles standard SCSI/SATA names (e.g. /dev/sdb1 → /dev/sdb),
+    NVMe names (e.g. /dev/nvme0n1p1 → /dev/nvme0n1), and
+    MMC/eMMC names (e.g. /dev/mmcblk0p1 → /dev/mmcblk0).
+    Falls back to the input unchanged if no pattern matches.
+    """
+    # NVMe: /dev/nvmeXnYpZ  → /dev/nvmeXnY
+    m = re.match(r"^(/dev/nvme\d+n\d+)p\d+$", drive)
+    if m:
+        return m.group(1)
+    # MMC/eMMC: /dev/mmcblkXpY → /dev/mmcblkX
+    m = re.match(r"^(/dev/mmcblk\d+)p\d+$", drive)
+    if m:
+        return m.group(1)
+    # Standard SCSI/SATA/USB: /dev/sdXN → /dev/sdX
+    m = re.match(r"^(/dev/[a-z]+)\d+$", drive)
+    if m:
+        return m.group(1)
+    return drive
 
 #######
 
@@ -68,6 +93,12 @@ def volumecustomlabel():
     if not drive:
         print("Error: No drive node found. Cannot relabel.")
         return
+
+    # Sanitize label: strip characters that could be misinterpreted.
+    # Since commands are passed as lists (shell=False), shell injection is not
+    # possible, but we still quote each argument defensively.
+    safe_drive = shlex.quote(drive)
+    safe_label = shlex.quote(newlabel)
 
     # 0 -> NTFS, 1 -> FAT32, 2 -> exFAT, 3 -> ext4
     fs_type = states.currentFS
@@ -139,26 +170,53 @@ def checkdevicebadblock():
         return False
 
     passes = 2 if states.check_bad else 1
+
+    # Probe the device's logical sector size so badblocks uses the real
+    # device geometry. Fall back to 4096 bytes if detection fails.
+    logical_block_size = 4096
+    try:
+        probe = subprocess.run(
+            ["blockdev", "--getss", drive],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if probe.returncode == 0:
+            probed = probe.stdout.strip()
+            if probed.isdigit():
+                logical_block_size = int(probed)
+            else:
+                print(f"Warning: Unexpected blockdev output for {drive!r}: {probed!r}. Using default.")
+        else:
+            print(f"Warning: blockdev failed for {drive} (exit {probe.returncode}). Using default block size.")
+    except Exception as exc:
+        print(f"Warning: Could not probe sector size for {drive}: {exc}. Using default block size.")
+
     # -s = show progress, -v = verbose output
     # -n = non-destructive read-write test (safe default)
-    args = ["badblocks", "-sv", "-b", "4096"]
+    args = ["badblocks", "-sv", "-b", str(logical_block_size)]
     if passes > 1:
         args.append("-n")  # non-destructive read-write
     args.append(drive)
 
-    print(f"Checking {drive} for bad blocks ({passes} pass(es))...")
+    print(f"Checking {drive} for bad blocks ({passes} pass(es), block size {logical_block_size})...")
     try:
         result = subprocess.run(args, capture_output=True, text=True)
         output = result.stdout + result.stderr
         if result.returncode != 0:
             print(f"badblocks exited with code {result.returncode}:\n{output}")
             return False
-        bad_count = sum(1 for line in output.splitlines() if line.strip().isdigit())
-        if bad_count:
-            print(f"WARNING: {bad_count} bad block(s) found on {drive}!")
-        else:
-            print(f"No bad blocks found on {drive}.")
-        return bad_count == 0
+        # badblocks reports bad block numbers one per line in stderr; a clean
+        # run produces no such lines and exits 0. We rely on the exit code as
+        # the authoritative result and only scan output for a user-friendly
+        # summary — we do NOT parse numeric lines as a bad-block count because
+        # the output format may include other numeric status lines.
+        bad_lines = [line for line in output.splitlines() if line.strip().isdigit()]
+        if bad_lines:
+            print(f"WARNING: {len(bad_lines)} bad block(s) found on {drive}!")
+            return False
+        print(f"No bad blocks found on {drive}.")
+        return True
     except FileNotFoundError:
         print("Error: 'badblocks' utility not found. Install e2fsprogs.")
         return False
@@ -236,7 +294,7 @@ def _apply_partition_scheme(drive: str):
     states.partition_scheme: 0 = GPT, 1 = MBR
     states.target_system:    0 = UEFI (non CSM), 1 = BIOS (or UEFI-CSM)
     """
-    raw_device = drive.rstrip("0123456789")
+    raw_device = _get_raw_device(drive)
     scheme = states.partition_scheme  # 0 = GPT, 1 = MBR
 
     try:
@@ -269,7 +327,7 @@ def drive_repair():
     if not drive:
         print("Error: No drive node found. Cannot repair.")
         return
-    raw_device = drive.rstrip("0123456789")
+    raw_device = _get_raw_device(drive)
     cmd = ["sfdisk", raw_device]
     try:
         subprocess.run(["umount", drive], check=True)
