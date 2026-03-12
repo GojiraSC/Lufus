@@ -18,7 +18,7 @@ lbl_boot_selection,Sélection de démarrage
 lbl_image_option,Option d'image
 lbl_partition_scheme,Schéma de partition
 lbl_target_system,Système de destination
-lbl_volume_label,Nom de volume
+lbl_volume_label,Nom du volume
 lbl_file_system,Système de fichiers
 lbl_flash_option,Option de flash
 lbl_cluster_size,Taille d'unité d'allocation
@@ -48,7 +48,7 @@ combo_flash_woe,Woe USB
 combo_flash_ventoy,Ventoy
 combo_flash_dd,DD
 combo_flash_none,Aucun
-btn_select,SÉLECTION
+btn_select,SÉLECTIONNER
 btn_start,DÉMARRER
 btn_cancel,ANNULER
 tooltip_refresh,Actualiser les périphériques USB (Ctrl+R)
@@ -88,7 +88,7 @@ msgbox_scan_error_body,Échec de la recherche de périphériques USB :
 no_usb_found,Aucun périphérique USB trouvé
 dlg_select_image_title,Sélectionner l'image disque
 dlg_select_image_filter,"Images disque (*.iso *.dmg *.img *.bin *.raw);;Tous les fichiers (*)"
-about_content,"lufus est un utilitaire d'écriture d'images disque écrit en Python pour Linux.
+about_content,"Lufus est un programme d'écriture d'images disque écrit en Python pour Linux.
 Inspiré par l'outil original Rufus pour Windows.
 Version : 1.0.0
 GitHub : github.com/hog185/lufus"
