@@ -67,9 +67,9 @@ msgbox_success_body,USB-диск успішно прошито!
 msgbox_error_title,Помилка
 msgbox_error_body,Не вдалося прошити USB-диск.
 msgbox_no_image_title,Немає образу
-msgbox_no_image_body,Будь ласка, спочатку виберіть дійсний файл установки.
+msgbox_no_image_body,Будь ласка спочатку виберіть дійсний файл установки.
 msgbox_no_device_title,Немає пристрою
-msgbox_no_device_body,Будь ласка, спочатку виберіть USB-пристрій.
+msgbox_no_device_body,Будь ласка спочатку виберіть USB-пристрій.
 msgbox_usb_found_title,Знайдено новий USB-пристрій
 msgbox_usb_found_body,USB-пристрій знайдено
 msgbox_no_devices_title,Немає пристроїв
