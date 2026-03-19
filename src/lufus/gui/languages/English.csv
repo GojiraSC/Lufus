@@ -88,7 +88,7 @@ msgbox_scan_error_body,Failed to scan for USB devices:
 no_usb_found,No USB devices found
 dlg_select_image_title,Select Disk Image
 dlg_select_image_filter,"Disk Images (*.iso *.dmg *.img *.bin *.raw);;All Files (*)"
-about_content,"lufus is a disk image writer written in Python for Linux.
-Inspired by the original lufus tool for Windows.
+about_content,"Lufus is a disk image writer written in Python for Linux.
+Inspired by the original Rufus tool for Windows.
 Version: 1.0.0
 GitHub: github.com/hog185/lufus"

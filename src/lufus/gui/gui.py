@@ -336,33 +336,38 @@ class AboutWindow(QDialog):
         layout.setContentsMargins(m, m, m, m)
         layout.setSpacing(self._S.px(10) if self._S else 10)
 
-        # main title label :3
-        lbl_title = QLabel("lufus")
-        title_font_size = self._S.pt(20) if self._S else 20
-        lbl_title.setFont(QFont("Sans Serif", title_font_size, QFont.Weight.Bold))
+        # To the person who made this: Fuck you. — Saber.
+        flat = getattr(parent, '_flat_theme', {})
+        tool_pt = flat.get('fonts_tool', self._S.pt(9) if self._S else 9)
+        font_family = flat.get('fonts_family', '')
+        fg_color = flat.get('colors_fg', '')
+
+        # main title label fuh u
+        lbl_title = QLabel("Lufus")
+        lbl_title.setObjectName("aboutTitle")
+        lbl_title.setStyleSheet(f"font-family: {font_family}; font-size: {self._S.pt(20) if self._S else 20}pt; font-weight: bold; color: {fg_color};")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(lbl_title)
 
-        # subtitle label
+        # subtitle label fuh u
         lbl_sub = QLabel(self._T.get("about_subtitle", "USB Flash Tool"))
-        sub_font_size = self._S.pt(10) if self._S else 10
-        lbl_sub.setFont(QFont("Sans Serif", sub_font_size))
-        lbl_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lbl_sub.setObjectName("aboutSubtitle")
+        lbl_sub.setStyleSheet(f"font-family: {font_family}; font-size: {tool_pt}pt; color: {fg_color};")
+        lbl_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(lbl_sub)
 
-        # horizontal separator line :D
+        # horizontal fuh u
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
         sep.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(sep)
 
-        # content text area
+        # im lying ily (context text something area, whatever)
         self.about_text = QTextEdit()
         self.about_text.setReadOnly(True)
+        self.about_text.setObjectName("aboutContent")
         self.about_text.setFrameShape(QFrame.Shape.NoFrame)
-        content_font_size = self._S.pt(9) if self._S else 9
-        self.about_text.setFont(QFont("Sans Serif", content_font_size))
+        self.about_text.setStyleSheet(f"font-family: {font_family}; font-size: {tool_pt}pt; color: {fg_color};")
         layout.addWidget(self.about_text, 1)
 
         # close button at bottom :3
@@ -1370,14 +1375,18 @@ class lufus(QMainWindow):
 
     def show_about(self):
         # show about dialog :3
-        if self.about_window is None:
-            self.about_window = AboutWindow(self)
-        content = self._T.get("about_content", "lufus - USB Flash Tool\n\nA simple, open-source USB flashing utility.")
+        if self.about_window:
+            self.about_window.close()
+        self.about_window = AboutWindow(self)
+        content = self._T.get("about_content", "Lufus - USB Flash Tool\n\nA simple, open-source USB flashing utility.")
+        flat = getattr(self, '_flat_theme', {})
+        font_family = flat.get('fonts_family', '')
+        fg_color = flat.get('colors_fg', '')
+
         if not content.strip().startswith("<"):
-            # convert plain text to html :D
             html_content = content.replace("\n", "<br>")
             self.about_window.about_text.setHtml(
-                f"<div style='font-family:sans-serif; padding:4px;'>{html_content}</div>"
+                f"<div style='font-family:{font_family}; color:{fg_color}; padding:4px;'>{html_content}</div>"
             )
         else:
             self.about_window.about_text.setHtml(content)
@@ -1411,6 +1420,8 @@ class lufus(QMainWindow):
             states.theme = theme_name
             self._apply_styles()
             self.log_message(f"Theme changed to: {theme_name}")
+            if self.about_window and self.about_window.isVisible():
+                self.show_about()
 
     def apply_language(self, language):
         # change language and update all ui text :D
@@ -1451,20 +1462,6 @@ class lufus(QMainWindow):
         #self.combo_image_option.addItem(self._T.get("combo_image_ventoy", "Ventoy"))
         self.combo_image_option.setCurrentIndex(current_img_idx)
         self.combo_image_option.blockSignals(False)
-
-        # update log and about windows if open
-        if self.log_window:
-            self.log_window.setWindowTitle(self._T.get("log_window_title", "Log Window"))
-        if self.about_window:
-            self.about_window.setWindowTitle(self._T.get("about_window_title", "About"))
-            content = self._T.get("about_content", "lufus - USB Flash Tool")
-            if not content.strip().startswith("<"):
-                html_content = content.replace("\n", "<br>")
-                self.about_window.about_text.setHtml(
-                    f"<div style='font-family:sans-serif; padding:4px;'>{html_content}</div>"
-                )
-            else:
-                self.about_window.about_text.setHtml(content)
 
         # update cluster size combo
         cur = self.combo_cluster.currentIndex()
