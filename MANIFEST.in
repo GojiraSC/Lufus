@@ -1,0 +1,3 @@
+recursive-include src/lufus/gui/themes *
+recursive-include src/lufus/gui/languages *
+recursive-include src/lufus/gui/assets *

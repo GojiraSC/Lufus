@@ -8,9 +8,6 @@ license.file = "LICENSE"
 author = "Hog185"
 author_email = "example@example.com"
 
-[tool.uv_build]
-package-data = {"lufus" = ["gui/themes/*", "gui/languages/*", "gui/assets/*"]}
-
 [tool.briefcase.app.lufus]
 formal_name = "Lufus"
 description = "A rufus clone written in Python and designed to work with Linux."
