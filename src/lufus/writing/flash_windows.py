@@ -489,18 +489,18 @@ def create_partitions(drive: str, scheme: PartitionScheme) -> list[dict[str, str
     """
     # Define the sfdisk scripts for each enum case
     scripts = {
-        PartitionScheme.WINDOWS_NTFS: (
-            "size=1G, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B\n" # EFI
-            "type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"           # NTFS Data
-        ),
-        PartitionScheme.WINDOWS_EXFAT: (
-            "size=1G, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B\n" # EFI
-            "type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"           # exFAT Data
-        ),
-        PartitionScheme.SIMPLE_FAT32: (
-            "type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"           # Single FAT32
-        )
-    }
+    PartitionScheme.WINDOWS_NTFS: (
+        "size=-2G, type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"  # NTFS Data (leaves 2G at end)
+        "size=1G, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B\n"   # EFI
+    ),
+    PartitionScheme.WINDOWS_EXFAT: (
+        "size=-2G, type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"  # exFAT Data
+        "size=1G, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B\n"   # EFI
+    ),
+    PartitionScheme.SIMPLE_FAT32: (
+        "type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"            # Single FAT32 (unchanged)
+    )
+}
 
     script = scripts.get(scheme)
     if not script:
@@ -521,8 +521,8 @@ def create_partitions(drive: str, scheme: PartitionScheme) -> list[dict[str, str
         
         if num_parts > 1:
             return [
-                {"role": "efi", "path": f"{drive}{separator}1"},
-                {"role": "data", "path": f"{drive}{separator}2"}
+                    {"role": "data", "path": f"{drive}{separator}1"},
+                    {"role": "efi",  "path": f"{drive}{separator}2"}
             ]
         else:
             return [{"role": "data", "path": f"{drive}{separator}1"}]
