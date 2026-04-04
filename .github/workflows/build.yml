@@ -26,17 +26,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            wget \
+            binutils \
+            fuse \
             libfuse2 \
             libglib2.0-0 \
             libgl1 \
             libegl1 \
             libdbus-1-3 \
             libxcb-cursor0
-
+      - name: Prepare Scripts
+        run: |
+            chmod +x appimage-setup.sh
+            chmod +x appimage-installer-config.sh
+      - name: Run Installer Config
+        run: ./appimage-installer-config.sh
       - name: Build AppImage
-        run: bash appimage-setup-script.sh
-        env:
-          APPIMAGE_EXTRACT_AND_RUN: 1
+        run: bash appimage-setup.sh
 
       - name: Verify AppImage
         run: |
