@@ -5,8 +5,10 @@ on:
     tags:
       - "v*"
       - "*-beta"
+  workflow_dispatch:
 
 jobs:
+  # for appimage
   build-appimage:
     runs-on: ubuntu-latest
     permissions:
@@ -24,17 +26,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            wget \
+            binutils \
+            fuse \
             libfuse2 \
             libglib2.0-0 \
             libgl1 \
             libegl1 \
             libdbus-1-3 \
             libxcb-cursor0
-
+      - name: Prepare Scripts
+        run: |
+            chmod +x appimage-setup.sh
+            chmod +x appimage-installer-config.sh
+      - name: Run Installer Config
+        run: ./appimage-installer-config.sh
       - name: Build AppImage
-        run: bash appimage-setup-script.sh
-        env:
-          APPIMAGE_EXTRACT_AND_RUN: 1
+        run: bash appimage-setup.sh
 
       - name: Verify AppImage
         run: |
@@ -57,3 +65,48 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref, '-beta') }}
           generate_release_notes: true
+  
+  # for binary
+  build-tarball:
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.13"
+
+        - name: Install dependencies
+          run: |
+            pip install pyinstaller PyQt6 psutil pyudev requests packaging platformdirs
+
+        - name: Build with PyInstaller
+          run: |
+            pyinstaller --noconfirm --onedir --windowed \
+            --icon "src/lufus/gui/assets/icons/lufuslogo.ico" \
+            --paths "./src" \
+            --add-data "src/lufus/gui/assets:lufus/gui/assets" \
+            --add-data "src/lufus/gui/languages:lufus/gui/languages" \
+            --add-data "src/lufus/gui/themes:lufus/gui/themes" \
+            --collect-all PyQt6 \
+            --name "Lufus-x86_64-${{ github.ref_name }}" \
+            "src/lufus/__main__.py"
+
+        - name: Create Tarball and Checksum
+          run: |
+            cd dist
+            tar -cvzf ../Lufus-x86_64-${{ github.ref_name }}.tar.gz Lufus-x86_64-${{ github.ref_name }}
+            cd ..
+            sha256sum Lufus-x86_64-${{ github.ref_name }}.tar.gz > Lufus-x86_64-${{ github.ref_name }}.tar.gz.sha256
+
+        - name: Upload to Release
+          uses: softprops/action-gh-release@v2
+          with:
+            tag_name: ${{ github.ref_name }}
+            files: |
+              Lufus-x86_64-${{ github.ref_name }}.tar.gz
+              Lufus-x86_64-${{ github.ref_name }}.tar.gz.sha256
+            append_body: true

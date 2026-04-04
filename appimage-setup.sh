@@ -89,8 +89,8 @@ linuxdeploy --appdir AppDir \
 # 9. Rename the AppImage to a predictable name
 # ----------------------------------------------------------------
 # mv lufus-*.AppImage Lufus-x86_64.AppImage
-rm linuxdeploy-x86_64.AppImage
-rm linuxdeploy-x86_64.AppImage.*
+rm -f linuxdeploy-x86_64.AppImage
+rm -f linuxdeploy-x86_64.AppImage.*
 rm -rf AppDir
 rm -rf .venv-temp
 rm -rf linuxdeploy-bin

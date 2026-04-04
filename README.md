@@ -6,20 +6,22 @@
 
 ## Beta Release
 
-**lufus** is currently in **Beta**.
+**Lufus** is currently in **Beta**. 
 
-It is a physical drive imaging and formatting utility written in Python, inspired by **Rufus**, with the goal of delivering a greater experience for Linux users.
+It is a physical drive imaging and formatting utility written in Python, inspired by **Rufus** on Windows, with the goal of delivering a greater experience for Linux users.
+While core functionality has been implemented, the project is still under active development. Users should expect bugs, incomplete features, and ongoing structural changes.
 
-While core functionality is being implemented and refined, the project is still under active development. Users should expect bugs, incomplete features, and ongoing structural changes.
-
-If you rely on stable, production-grade imaging tools, consider established alternatives until lufus reaches a stable release.
+<img width="706" height="902" alt="2 (1)" src="https://github.com/user-attachments/assets/fd62ba76-9d14-4c3d-8167-defc8a2762e9" />
 
 ## Aim
 
-lufus aims to:
+Lufus aims to:
 
-* Simplify bootable media creation for  Linux users
-* Provide a clean, minimal, and accessible interface
+* Simplify bootable media creation for  Linux users (new and old alike)
+* Provide a clean, minimal, and accessible interface for users
+* Become an all in one hub for everything-flashing on Linux and provide features not offered yet by its counterparts
+* Allow users freedom and control over their Windows installs (in works)
+* and much more
 
 ## Running Lufus
 
@@ -29,7 +31,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip install briefcase
 ```
-Cloning the project, and running `briefcase run -r` in the root directory
+Clone the project, and run the following in the root directory of the project:
+```briefcase dev -r```
 
 ## Documentation
 Lufus uses [MkDocs](https://www.mkdocs.org/) for its documentation.
@@ -38,12 +41,5 @@ or `mkdocs serve` to run a dev server.
 
 ## Contributing
 
-Feedback, testing, and contributions are appreciated.
-
+Feedback, testing, translations, and other contributions are appreciated. Please join our Discord server to get quick support on contributing and debugging.
 This is an open-source project maintained by volunteers and hobbyists. Response times for issues and pull requests may vary.
-
-<a href="https://github.com/hog185/lufus/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=hog185/lufus" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
